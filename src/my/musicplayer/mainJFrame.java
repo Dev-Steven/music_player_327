@@ -6,7 +6,22 @@
 
 package my.musicplayer;
 
+import com.google.gson.Gson;
+import java.awt.Dimension;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 
 /**
  *
@@ -43,7 +58,9 @@ public class mainJFrame extends javax.swing.JFrame {
         passwordField = new javax.swing.JPasswordField();
         loginButton = new javax.swing.JButton();
         success = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        songListPane = new javax.swing.JScrollPane();
+        jLabel1 = new javax.swing.JLabel();
 
         menu1.setLabel("File");
         menuBar1.add(menu1);
@@ -119,31 +136,50 @@ public class mainJFrame extends javax.swing.JFrame {
                     .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(30, 30, 30)
                 .addComponent(loginButton)
-                .addContainerGap(99, Short.MAX_VALUE))
+                .addContainerGap(103, Short.MAX_VALUE))
         );
 
         main.add(login, "card2");
 
         success.setBackground(new java.awt.Color(51, 51, 51));
 
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("Success, you in");
+        jButton1.setText("View All Songs");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("All Songs");
 
         javax.swing.GroupLayout successLayout = new javax.swing.GroupLayout(success);
         success.setLayout(successLayout);
         successLayout.setHorizontalGroup(
             successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(successLayout.createSequentialGroup()
-                .addGap(232, 232, 232)
-                .addComponent(jLabel4)
-                .addContainerGap(248, Short.MAX_VALUE))
+                .addGap(335, 335, 335)
+                .addComponent(songListPane, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
+                .addGap(21, 21, 21))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, successLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(103, 103, 103))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, successLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addGap(58, 58, 58))
         );
         successLayout.setVerticalGroup(
             successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(successLayout.createSequentialGroup()
-                .addGap(146, 146, 146)
-                .addComponent(jLabel4)
-                .addContainerGap(196, Short.MAX_VALUE))
+                .addGap(12, 12, 12)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(songListPane, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         main.add(success, "card3");
@@ -181,6 +217,44 @@ public class mainJFrame extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Login Failure");
         }
     }//GEN-LAST:event_loginButtonActionPerformed
+
+    
+    
+    // button on Success Page, will display songs
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        
+        Gson gson = new Gson();
+        BufferedReader br = null;
+        try {
+           br = new BufferedReader(new FileReader("/Users/stevenchung/Documents/cecs_327/MusicPlayer/src/my/musicplayer/music.json"));
+           JsonPojo[] array = gson.fromJson(br, JsonPojo[].class);
+           
+//           JsonPojo firstEl = array[0];
+//           System.out.println("first element release: " + firstEl.release.name);
+//           System.out.println("first element artist: " + firstEl.artist);
+//           System.out.println("first element song: " + firstEl.song);
+           DefaultListModel listModel; 
+           listModel = new DefaultListModel();
+           
+           
+           ArrayList<String> songs = new ArrayList<String>();
+           for(JsonPojo obj : array) {
+               
+               listModel.addElement(obj.song.title + " - " + obj.artist.name);
+//               System.out.println("Release: " + obj.release.name);
+           }
+           
+           JList list = new JList(listModel);
+           songListPane.setViewportView(list);
+           
+           
+           
+        } 
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -220,7 +294,8 @@ public class mainJFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField emailField;
     private javax.swing.JLabel emailLabel;
-    private javax.swing.JLabel jLabel4;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel login;
     private javax.swing.JButton loginButton;
     private javax.swing.JLabel loginTitle;
@@ -230,6 +305,7 @@ public class mainJFrame extends javax.swing.JFrame {
     private java.awt.MenuBar menuBar1;
     private javax.swing.JPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
+    private javax.swing.JScrollPane songListPane;
     private javax.swing.JPanel success;
     // End of variables declaration//GEN-END:variables
 
