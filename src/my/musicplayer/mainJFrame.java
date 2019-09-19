@@ -36,6 +36,12 @@ public class mainJFrame extends javax.swing.JFrame {
     
     String email = "";
     String password = "";
+    
+    // Variables for displaying all songs
+    DefaultListModel listModel; 
+//        listModel = new DefaultListModel();
+    JList list;
+
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -58,9 +64,11 @@ public class mainJFrame extends javax.swing.JFrame {
         passwordField = new javax.swing.JPasswordField();
         loginButton = new javax.swing.JButton();
         success = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        addSongButton = new javax.swing.JButton();
         songListPane = new javax.swing.JScrollPane();
         jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jLabel2 = new javax.swing.JLabel();
 
         menu1.setLabel("File");
         menuBar1.add(menu1);
@@ -143,42 +151,53 @@ public class mainJFrame extends javax.swing.JFrame {
 
         success.setBackground(new java.awt.Color(51, 51, 51));
 
-        jButton1.setText("View All Songs");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        addSongButton.setText("Add Song to Playlist");
+        addSongButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                addSongButtonActionPerformed(evt);
             }
         });
 
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("All Songs");
 
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Your Playlist");
+
         javax.swing.GroupLayout successLayout = new javax.swing.GroupLayout(success);
         success.setLayout(successLayout);
         successLayout.setHorizontalGroup(
             successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(successLayout.createSequentialGroup()
-                .addGap(335, 335, 335)
+                .addGap(29, 29, 29)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(91, 91, 91)
                 .addComponent(songListPane, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
                 .addGap(21, 21, 21))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, successLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(addSongButton)
+                .addGap(43, 43, 43))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, successLayout.createSequentialGroup()
+                .addGap(92, 92, 92)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel1)
                 .addGap(103, 103, 103))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, successLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addGap(58, 58, 58))
         );
         successLayout.setVerticalGroup(
             successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(successLayout.createSequentialGroup()
                 .addGap(12, 12, 12)
-                .addComponent(jLabel1)
+                .addGroup(successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(songListPane, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE)
+                    .addComponent(songListPane))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addComponent(addSongButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -211,6 +230,28 @@ public class mainJFrame extends javax.swing.JFrame {
             main.add(success);
             main.repaint();
             main.revalidate();
+            
+            
+            Gson gson = new Gson();
+            BufferedReader br = null;
+            try {
+            br = new BufferedReader(new FileReader("/Users/stevenchung/Documents/cecs_327/MusicPlayer/src/my/musicplayer/music.json"));
+            JsonPojo[] array = gson.fromJson(br, JsonPojo[].class);
+           
+//            DefaultListModel listModel; 
+            listModel = new DefaultListModel();
+           
+            ArrayList<String> songs = new ArrayList<String>();
+            for(JsonPojo obj : array) {   
+               listModel.addElement(obj.song.title + " - " + obj.artist.name);
+            }
+            list = new JList(listModel);
+            songListPane.setViewportView(list);
+            } 
+            
+            catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         else
         {
@@ -221,40 +262,12 @@ public class mainJFrame extends javax.swing.JFrame {
     
     
     // button on Success Page, will display songs
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void addSongButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSongButtonActionPerformed
         
-        Gson gson = new Gson();
-        BufferedReader br = null;
-        try {
-           br = new BufferedReader(new FileReader("/Users/stevenchung/Documents/cecs_327/MusicPlayer/src/my/musicplayer/music.json"));
-           JsonPojo[] array = gson.fromJson(br, JsonPojo[].class);
-           
-//           JsonPojo firstEl = array[0];
-//           System.out.println("first element release: " + firstEl.release.name);
-//           System.out.println("first element artist: " + firstEl.artist);
-//           System.out.println("first element song: " + firstEl.song);
-           DefaultListModel listModel; 
-           listModel = new DefaultListModel();
-           
-           
-           ArrayList<String> songs = new ArrayList<String>();
-           for(JsonPojo obj : array) {
-               
-               listModel.addElement(obj.song.title + " - " + obj.artist.name);
-//               System.out.println("Release: " + obj.release.name);
-           }
-           
-           JList list = new JList(listModel);
-           songListPane.setViewportView(list);
-           
-           
-           
-        } 
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        String selectedSong = list.getSelectedValue().toString();
+        System.out.println("Selected Song: " + selectedSong);
         
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_addSongButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -292,10 +305,12 @@ public class mainJFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addSongButton;
     private javax.swing.JTextField emailField;
     private javax.swing.JLabel emailLabel;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel login;
     private javax.swing.JButton loginButton;
     private javax.swing.JLabel loginTitle;
