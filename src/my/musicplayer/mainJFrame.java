@@ -6,9 +6,11 @@
 
 package my.musicplayer;
 
+import jaco.mp3.player.MP3Player;
 import com.google.gson.Gson;
 import java.awt.Dimension;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -19,29 +21,37 @@ import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
 
 /**
  *
- * @author stevenchung
+ * @author stevenchung,
  */
 public class mainJFrame extends javax.swing.JFrame {
 
+    // Define MP3Player Class From JACO MP3Player Lib
+    MP3Player player;
+    
+    File songFile;
+    
+    
+    
     /** Creates new form mainJFrame */
     public mainJFrame() {
         initComponents();
+        
+        songFile = new File("imperial.mp3");
+        
+        // Now make a string to get file name
+        String fileName = songFile.getName();
+        // Add our method to player variable
+        player = mp3Player();
+        // Now add song to player as playlist.
+        player.addToPlayList(songFile);
     }
     
     String email = "";
     String password = "";
-    
-    // Variables for displaying all songs
-    DefaultListModel listModel; 
-//        listModel = new DefaultListModel();
-    JList list;
-
+    String search = "";
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -64,11 +74,15 @@ public class mainJFrame extends javax.swing.JFrame {
         passwordField = new javax.swing.JPasswordField();
         loginButton = new javax.swing.JButton();
         success = new javax.swing.JPanel();
-        addSongButton = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
         songListPane = new javax.swing.JScrollPane();
         jLabel1 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jLabel2 = new javax.swing.JLabel();
+        playButton = new javax.swing.JLabel();
+        pauseButton = new javax.swing.JLabel();
+        stopButton = new javax.swing.JLabel();
+        searchBar = new javax.swing.JTextField();
+        searchResult = new javax.swing.JScrollPane();
+        searchButton = new javax.swing.JButton();
 
         menu1.setLabel("File");
         menuBar1.add(menu1);
@@ -127,7 +141,7 @@ public class mainJFrame extends javax.swing.JFrame {
                         .addGroup(loginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(loginTitle)
                             .addComponent(emailField))))
-                .addContainerGap(201, Short.MAX_VALUE))
+                .addContainerGap(204, Short.MAX_VALUE))
         );
         loginLayout.setVerticalGroup(
             loginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -144,61 +158,114 @@ public class mainJFrame extends javax.swing.JFrame {
                     .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(30, 30, 30)
                 .addComponent(loginButton)
-                .addContainerGap(103, Short.MAX_VALUE))
+                .addContainerGap(125, Short.MAX_VALUE))
         );
 
         main.add(login, "card2");
 
         success.setBackground(new java.awt.Color(51, 51, 51));
 
-        addSongButton.setText("Add Song to Playlist");
-        addSongButton.addActionListener(new java.awt.event.ActionListener() {
+        jButton1.setText("View All Songs");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addSongButtonActionPerformed(evt);
+                jButton1ActionPerformed(evt);
             }
         });
 
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("All Songs");
 
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Your Playlist");
+        playButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/play.png"))); // NOI18N
+        playButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                playButtonMouseClicked(evt);
+            }
+        });
+
+        pauseButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/pause.png"))); // NOI18N
+        pauseButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                pauseButtonMouseClicked(evt);
+            }
+        });
+
+        stopButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/stop.png"))); // NOI18N
+        stopButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                stopButtonMouseClicked(evt);
+            }
+        });
+
+        searchBar.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+                searchBarInputMethodTextChanged(evt);
+            }
+        });
+
+        searchButton.setText("Search");
+        searchButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                searchButtonMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout successLayout = new javax.swing.GroupLayout(success);
         success.setLayout(successLayout);
         successLayout.setHorizontalGroup(
             successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(successLayout.createSequentialGroup()
-                .addGap(29, 29, 29)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(91, 91, 91)
-                .addComponent(songListPane, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
-                .addGap(21, 21, 21))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, successLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(addSongButton)
-                .addGap(43, 43, 43))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, successLayout.createSequentialGroup()
-                .addGap(92, 92, 92)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addGap(103, 103, 103))
+                .addContainerGap()
+                .addGroup(successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(successLayout.createSequentialGroup()
+                            .addComponent(pauseButton)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(searchBar)
+                        .addComponent(searchResult))
+                    .addComponent(searchButton))
+                .addGroup(successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(successLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel1)
+                        .addGap(103, 103, 103))
+                    .addGroup(successLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(stopButton)
+                        .addGap(126, 126, 126)
+                        .addGroup(successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(successLayout.createSequentialGroup()
+                                .addComponent(jButton1)
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(successLayout.createSequentialGroup()
+                                .addComponent(songListPane, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
+                                .addGap(21, 21, 21))))))
         );
         successLayout.setVerticalGroup(
             successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(successLayout.createSequentialGroup()
-                .addGap(12, 12, 12)
+                .addGap(8, 8, 8)
                 .addGroup(successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jLabel2))
+                    .addComponent(searchButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE)
-                    .addComponent(songListPane))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(addSongButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(successLayout.createSequentialGroup()
+                        .addComponent(searchBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(searchResult, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(successLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(pauseButton, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(playButton, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(stopButton, javax.swing.GroupLayout.Alignment.TRAILING)))
+                    .addGroup(successLayout.createSequentialGroup()
+                        .addComponent(songListPane, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton1)
+                        .addContainerGap())))
         );
 
         main.add(success, "card3");
@@ -230,28 +297,6 @@ public class mainJFrame extends javax.swing.JFrame {
             main.add(success);
             main.repaint();
             main.revalidate();
-            
-            
-            Gson gson = new Gson();
-            BufferedReader br = null;
-            try {
-            br = new BufferedReader(new FileReader("/Users/stevenchung/Documents/cecs_327/MusicPlayer/src/my/musicplayer/music.json"));
-            JsonPojo[] array = gson.fromJson(br, JsonPojo[].class);
-           
-//            DefaultListModel listModel; 
-            listModel = new DefaultListModel();
-           
-            ArrayList<String> songs = new ArrayList<String>();
-            for(JsonPojo obj : array) {   
-               listModel.addElement(obj.song.title + " - " + obj.artist.name);
-            }
-            list = new JList(listModel);
-            songListPane.setViewportView(list);
-            } 
-            
-            catch (IOException e) {
-                e.printStackTrace();
-            }
         }
         else
         {
@@ -259,16 +304,90 @@ public class mainJFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_loginButtonActionPerformed
 
-    
-    
-    // button on Success Page, will display songs
-    private void addSongButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSongButtonActionPerformed
-        
-        String selectedSong = list.getSelectedValue().toString();
-        System.out.println("Selected Song: " + selectedSong);
-        
-    }//GEN-LAST:event_addSongButtonActionPerformed
+    private void stopButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_stopButtonMouseClicked
+        player.stop();
+    }//GEN-LAST:event_stopButtonMouseClicked
 
+    private void pauseButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pauseButtonMouseClicked
+        player.pause();
+    }//GEN-LAST:event_pauseButtonMouseClicked
+
+    private void playButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_playButtonMouseClicked
+        player.play();
+    }//GEN-LAST:event_playButtonMouseClicked
+
+    // button on Success Page, will display songs
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+        Gson gson = new Gson();
+        BufferedReader br = null;
+        try {
+            //br = new BufferedReader(new FileReader("/Users/stevenchung/Documents/cecs_327/MusicPlayer/src/my/musicplayer/music.json"));
+            br = new BufferedReader(new FileReader("music.json"));
+            JsonPojo[] array = gson.fromJson(br, JsonPojo[].class);
+
+            //           JsonPojo firstEl = array[0];
+            //           System.out.println("first element release: " + firstEl.release.name);
+            //           System.out.println("first element artist: " + firstEl.artist);
+            //           System.out.println("first element song: " + firstEl.song);
+            DefaultListModel listModel;
+            listModel = new DefaultListModel();
+
+            ArrayList<String> songs = new ArrayList<String>();
+            for(JsonPojo obj : array) {
+
+                listModel.addElement(obj.song.title + " - " + obj.artist.name);
+                //               System.out.println("Release: " + obj.release.name);
+            }
+
+            JList list = new JList(listModel);
+            songListPane.setViewportView(list);
+
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void searchBarInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_searchBarInputMethodTextChanged
+        
+    }//GEN-LAST:event_searchBarInputMethodTextChanged
+
+    private void searchButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchButtonMouseClicked
+        search = searchBar.getText();
+        Gson gson = new Gson();
+        BufferedReader br = null;
+        try {
+            //br = new BufferedReader(new FileReader("/Users/stevenchung/Documents/cecs_327/MusicPlayer/src/my/musicplayer/music.json"));
+            br = new BufferedReader(new FileReader("music.json"));
+            JsonPojo[] array = gson.fromJson(br, JsonPojo[].class);
+
+            //           JsonPojo firstEl = array[0];
+            //           System.out.println("first element release: " + firstEl.release.name);
+            //           System.out.println("first element artist: " + firstEl.artist);
+            //           System.out.println("first element song: " + firstEl.song);
+            DefaultListModel listModel;
+            listModel = new DefaultListModel();
+
+            ArrayList<String> songs = new ArrayList<String>();
+            for(JsonPojo obj : array) {
+                if (search.equals(obj.song.title) || search.equals(obj.artist.name) || search.equals(obj.release.name))
+                {
+                    listModel.addElement(obj.song.title + " - " + obj.artist.name);
+                }
+            }
+
+            JList list = new JList(listModel);
+            searchResult.setViewportView(list);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_searchButtonMouseClicked
+
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -305,12 +424,10 @@ public class mainJFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addSongButton;
     private javax.swing.JTextField emailField;
     private javax.swing.JLabel emailLabel;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel login;
     private javax.swing.JButton loginButton;
     private javax.swing.JLabel loginTitle;
@@ -320,8 +437,18 @@ public class mainJFrame extends javax.swing.JFrame {
     private java.awt.MenuBar menuBar1;
     private javax.swing.JPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
+    private javax.swing.JLabel pauseButton;
+    private javax.swing.JLabel playButton;
+    private javax.swing.JTextField searchBar;
+    private javax.swing.JButton searchButton;
+    private javax.swing.JScrollPane searchResult;
     private javax.swing.JScrollPane songListPane;
+    private javax.swing.JLabel stopButton;
     private javax.swing.JPanel success;
     // End of variables declaration//GEN-END:variables
 
+    private MP3Player mp3Player(){
+        MP3Player mp3Player = new MP3Player();
+        return mp3Player;
+    }
 }
